@@ -1,0 +1,75 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+
+/**
+ *
+ * @author 
+ */
+public class ConexionPersona2 {
+   // private static ConexionPersona objeto;
+    private Connection con;
+    List<String[]> datos;
+    public ConexionPersona2(String usa, String cont){
+        try{
+         
+           Class.forName("org.postgresql.Driver");
+            con=(Connection) 
+           DriverManager.getConnection("jdbc:postgresql://localhost:5432/Energy_Dragon_Gym","postgres","adelaida97");
+            System.out.println("Se conecto correctamente ");
+        } catch (Exception e){
+            System.out.println("Hubo un error en la conexion "+e);
+        }
+    }
+
+    public Connection getConexion(){
+        return con;
+    }
+        public List<String[]> mostrarDatos(String sql){
+             datos = new ArrayList< String[] >();
+            try{
+                Statement stnt= con.createStatement();
+                ResultSet rs= stnt.executeQuery(sql);
+                int cont = 0;
+                
+           while(rs.next()) {
+           String dat[]=new String[8];
+           dat[0] = String.valueOf(rs.getInt(1));
+           dat[1] = rs.getString(2);
+           dat[2] = rs.getString(3);
+           dat[3] = rs.getString(4);
+           dat[4] =  String.valueOf(rs.getInt(5));
+          
+            datos.add(dat);
+            
+           }
+           
+            }catch(Exception e){
+                  e.printStackTrace();
+           }
+           return datos;
+            }
+            public static void main(String[]args)throws SQLException{
+                String usuario= JOptionPane.showInputDialog(null,"Usuario ?");
+                String contrase= JOptionPane.showInputDialog(null,"Contraseña ?");
+                ConexionPersona2 b= new ConexionPersona2(usuario,contrase);
+                List<String[]> d= b.mostrarDatos("select * from ROOT.Energy_Dragon_Gym");
+                System.out.println("no_alumno\tnombre\tapellidos\tgenero\tedad\n");
+                for(int p=0;p<d.size();p++){
+                    System.out.println(d.get(p)[0]
+                            +"\t" + d.get(p)[1]
+                            +"\t"+ d.get(p)[2]
+                            +"\t"+ d.get(p)[3]
+                            +"\t"+d.get(p)[4]
+                            +"\t"+d.get(p)[5]
+                           );
+                }
+            b.getConexion().close();
+          
+        }
+    }
