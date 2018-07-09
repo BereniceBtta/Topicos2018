@@ -1,0 +1,150 @@
+import java.awt.Component;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import javax.swing.JTable;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author di_eg
+ */
+// crea un modelo de tabla del usuario con los datos de los archivos del durectorio actual
+public class ModeloTabla4 extends AbstractTableModel{
+    ConexionPersona2 con = new ConexionPersona2("admon", "admon");
+    List<String[]> datosconexion = con.mostrarDatos("select * from ADMON.Energy_Dragon_Gym");
+    private double promedio;
+    private Object datos[][];
+    DefaultTableModel modelo;    
+    
+    
+   
+    public double getPromedio(){   
+     double suma = 0;
+     for(int d = 0 ; d < datos.length ; d++){
+        suma += Double.parseDouble(datosconexion.get(d)[4]);
+ }
+     promedio = suma/(datos.length);
+     return promedio;
+ }
+ 
+    
+ public List<String[]> lista(){
+     return datosconexion;
+ }
+   String encabezados[] = new String[] {
+    "IdPersona", " Nombre ", "Edad", "Sexo", "Estatura(MTS)","Peso(kg)","Cintura","Cadera",
+       "IMC","IMCC"
+  };
+   
+   public String[] encabe(){
+       return encabezados;
+   }
+    private Class tipos[] = new Class[]{
+    Integer.class, String.class, Integer.class, Character.class, Integer.class,Integer.class,Integer.class,Integer.class,Double.class, Double.class
+        };
+    private Object columnas[]= new Object [tipos.length];
+    
+    public ModeloTabla4()throws SQLException{
+        this(".");
+         
+    }
+    public ModeloTabla4(String dir)throws SQLException{
+        this.actualizadatos(datosconexion);
+        promedio = getPromedio();
+        ConexionPersona2 con = new ConexionPersona2("admon", "admon");
+
+        
+    }
+    public int addRow(JTable tabla  , Object[] fi){
+        modelo = (DefaultTableModel) tabla.getModel(); 
+        modelo.addRow(fi);
+        tabla.setModel(modelo);
+        return 0;
+    }
+    public void actualizar(){
+        promedio = getPromedio();
+       this.actualizadatos(datosconexion);
+        
+    }
+    @Override
+    public boolean isCellEditable(int r, int c){
+      if(c==3||c==4||c==5)
+          return true;
+      return false;
+    }
+
+    
+    @Override
+    public int getRowCount() {return datos.length;}
+    @Override
+    public int getColumnCount() {return encabezados.length;}
+   
+
+    @Override
+    public String getColumnName(int c) {return encabezados[c];}
+    @Override
+    public Class getColumnClass(int c) {return tipos[c];}
+    @Override
+    public void setValueAt(Object o, int r, int c) { 
+      if(o != null && c == 4)     
+      if((Double)o > 1.0 && (Double)o< 2.0)
+             datos[r][c] = o;
+      fireTableCellUpdated(r,c);
+      
+  }
+   @Override
+    public Object getValueAt( int r, int c) {
+      if(c == 8)
+          return Double.parseDouble(datosconexion.get(r)[4]) >= promedio;
+          return datos[r][c];
+    }
+    public void fireTableChanged(){
+        promedio = getPromedio();
+    }     
+    public Object[][] matriz(){
+        return  datos;
+    }
+    
+    public void actualizadatos(List<String[]> l){
+       
+    datos = new Object[l.size()][encabezados.length];
+    
+        for(int i = 0; i < l.size() ; i++){
+            
+             double peso = Double.parseDouble(String.valueOf(l.get(i)[5]));
+             double altura = Double.parseDouble(String.valueOf(l.get(i)[4]));
+             double cintura = Double.parseDouble(String.valueOf(l.get(i)[6]));
+             double cadera = Double.parseDouble(String.valueOf(l.get(i)[7]));
+             
+            datos[i][0] = l.get(i)[0];
+            datos[i][1] = l.get(i)[1];
+            datos[i][2] = l.get(i)[2];
+            datos[i][3] = l.get(i)[3];
+            datos[i][4] = l.get(i)[4];   
+            datos[i][5] = l.get(i)[5];
+            datos[i][6] = l.get(i)[6];
+            datos[i][7] = l.get(i)[7];
+           // datos[i][8] = new Boolean(l.get(i)[5]);
+            datos[i][8] = peso/(altura*altura);
+            datos[i][9] = cintura/cadera;
+    }
+    }
+    public boolean actualizarDatos(String sql) {
+        boolean res = false;
+        getPromedio();
+        try {
+            actualizar();
+            Statement st = con.getConexion().createStatement();
+            st.executeUpdate(sql);
+            res = true;
+        } catch (Exception e) {
+            System.out.println("Error al ejecutar orden: " + sql);
+        }
+        return res;
+    }
+ 
+}
+
