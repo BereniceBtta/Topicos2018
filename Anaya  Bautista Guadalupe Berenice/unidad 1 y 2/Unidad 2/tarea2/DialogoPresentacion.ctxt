@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=DialogoPresentacion
+comment1.params=
+comment1.target=DialogoPresentacion()
+comment2.params=evt
+comment2.target=void\ windowClosing(java.awt.event.WindowEvent)
+comment3.params=
+comment3.target=void\ close()
+comment4.params=
+comment4.target=void\ createContents()
+comment5.params=e
+comment5.target=void\ actionPerformed(java.awt.event.ActionEvent)
+comment6.params=nombre
+comment6.target=void\ setNombrePrograma(java.lang.String)
+comment7.params=Version
+comment7.target=void\ setVersion(java.lang.String)
+comment8.params=nombreprograma
+comment8.target=void\ setNombreProgramador(java.lang.String)
+numComments=9
